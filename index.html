@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>DCC104 - Space Shooter</title>
+    <script src="ImageLoader.js" charset="utf-8"></script>
+    <script src="Sprite.js" charset="utf-8"></script>
+    <script src="Level.js" charset="utf-8"></script>
+    <script src="AudioLoader.js" charset="utf-8"></script>
+  </head>
+  <body>
+    <h1>DCC104 - Space Shooter</h1>
+    <canvas></canvas>
+    <script>
+      var eCanvas = document.getElementsByTagName("canvas")[0];
+      eCanvas.width = 400;
+      eCanvas.height = 500;
+      var ctx = eCanvas.getContext("2d");
+
+      var il = new ImageLoader();
+      il.load("asteroidSmall", "images/asteroid01.png");
+      il.load("asteroidLarge", "images/asteroid02.png");
+      il.load("shot", "images/shot.png");
+
+      var al = new AudioLoader()
+
+      al.load("shot", "audio/Missile_Launch.wav")
+      al.load("explosao", "audio/Missile_Impact.wav")
+
+      var fps = 120;
+      var atual = new Date();
+      var anterior = new Date();
+      var dt = 1/fps;
+
+
+
+      var level = new Level();
+
+
+
+
+      level.imageLib = il;
+      level.init(eCanvas.width, eCanvas.height);
+
+      var canhao = new Sprite();
+      canhao.color = "red";
+      canhao.width = 16;
+      canhao.height = 24;
+      canhao.x = level.platCanhao.x;
+      canhao.y = level.platCanhao.y-level.platCanhao.height/2-canhao.height/2+5;
+	    canhao.angle = 180;
+      canhao.minAngle = 120;
+      canhao.maxAngle = 240;
+
+      desenha();
+
+
+
+
+      function desenha(){
+        requestAnimationFrame(desenha);
+        atual = new Date();
+        dt = (atual - anterior)/1000;
+        ctx.clearRect(0,0,eCanvas.width, eCanvas.height)
+        ctx.strokeRect(0,0,eCanvas.width, eCanvas.height)
+        ctx.fillStyle = "darkgreen";
+        ctx.fillText("dt: "+dt+" fps:"+Math.floor(1/dt), 10, 10);
+
+        level.spawnInimigos(dt)
+
+
+
+		    canhao.mover(dt,eCanvas.width, eCanvas.height)
+		    level.mover(dt,eCanvas.width, eCanvas.height)
+
+        level.colidiuComTiros(al, "explosao");
+        level.colidiuComPredios()
+
+
+        canhao.desenhar(ctx);
+        level.desenharImg(ctx);
+
+		      level.desenharInfo(ctx)
+        anterior = atual;
+      }
+
+      addEventListener("keydown", function(e){
+        switch (e.keyCode) {
+          case 32:
+            level.fire(canhao);
+            break;
+
+          case 37: // seta <
+			      canhao.vang = -100
+            break;
+          case 38:
+            //canhao.am = 50;
+            break;
+          case 39: // seta >
+			canhao.vang = 100
+            break;
+          case 40:
+            //canhao.am = -50;
+            break;
+          default:
+
+        }
+      });
+      addEventListener("keyup", function(e){
+        switch (e.keyCode) {
+          case 37:
+			canhao.vang = 0
+            break;
+          case 38:
+            canhao.vang = 0;
+            break;
+          case 39:
+			canhao.vang = 0
+            break;
+          case 40:
+            canhao.vang = 0;
+            break;
+          default:
+
+        }
+      });
+
+    </script>
+  </body>
+
+
+
+
+</html>
